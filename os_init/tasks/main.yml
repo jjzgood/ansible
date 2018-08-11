@@ -1,0 +1,70 @@
+---
+# author: jiajei
+- name: stop firewalld
+  service: name=firewalld state=stopped enabled=no
+  tags: iptables
+  when: ansible_distribution_major_version == "7"
+
+- name: stop iptables 
+  service: name=iptables state=stopped enabled=no
+  tags: iptables
+  when: ansible_distribution_major_version == "6"
+
+- name: install ntpdate packages
+  yum: name=ntpdate state=installed
+  notify: add ntp crontab 
+
+- name: change system limits
+  lineinfile: dest=/etc/security/limits.conf insertbefore='# End of' line={{ item }}
+  with_items:
+   - '* soft nofile 65536'
+   - '* hard nofile 65536'
+   - '* soft noproc 65536'
+   - '* hard noproc 65536'
+  tags: limits
+
+- name: kernel optimize
+  lineinfile: dest=/etc/sysctl.conf line={{ item }}
+  with_items:
+   - 'net.ipv4.tcp_fin_timeout = 2'
+   - 'net.ipv4.tcp_tw_reuse = 1'
+   - 'net.ipv4.tcp_tw_recycle = 1'
+   - 'net.ipv4.tcp_syncookies = 1'
+   - 'net.ipv4.tcp_keepalive_time = 600'
+   - 'net.ipv4.tcp_keepalive_probes = 3'
+   - 'net.ipv4.tcp_keepalive_intvl = 15'
+   - 'net.ipv4.ip_local_port_range = 4000 65000'
+   - 'net.ipv4.tcp_max_syn_backlog = 16384'
+   - 'net.ipv4.tcp_max_tw_buckets = 36000'
+   - 'net.ipv4.route.gc_timeout = 100'
+   - 'net.ipv4.tcp_syn_retries = 1'
+   - 'net.ipv4.tcp_synack_retries = 1'
+   - 'net.core.somaxconn = 16384'
+   - 'net.core.netdev_max_backlog = 16384'
+   - 'net.ipv4.tcp_max_orphans = 32768'
+   - 'net.ipv4.tcp_retries2 = 5'
+   - 'net.ipv4.tcp_max_syn_backlog = 16384'
+   - 'net.ipv4.tcp_wmem = 8192 131072 16777216'
+   - 'net.ipv4.tcp_rmem = 32768 131072 16777216'
+   - 'net.ipv4.tcp_mem = 786432 1048576 1572864'
+  notify: reload systctl file
+
+- name: change selinux disabled
+  replace: path=/etc/selinux/config regexp='^SELINUX=enforcing' replace='SELINUX=disabled' backup=yes
+  tags: selinux_off
+  notify: set setenforce zero
+
+- name: install gcc gcc-c++... packages
+  yum: name={{ item }} state=installed
+  with_items:
+   - gcc
+   - gcc-c++
+   - vim 
+   - libtool
+   - make
+   - lsof
+   - tree
+   - automake
+   - openssl
+   - openssl-devel
+   - lrzsz

@@ -7,3 +7,9 @@ some ansible role
 * 修改内核参数
 * 关闭selinux
 * 安装gcc gcc-c++ make vim 等工具包
+
+## 2. nginx
+* 安装nginx
+* 修改nginx配置文件
+* 修改端口
+* 启动nginx

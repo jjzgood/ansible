@@ -1,0 +1,41 @@
+---
+# author:jiajie
+- name: install nginx depandency packages
+  yum: name={{ item }} state=installed
+  with_items:
+   - gcc
+   - gcc-c++
+   - libtool
+   - openssl
+   - zlib
+   - openssl-devel
+   - zlib-devel
+   - pcre
+   - pcre-devel
+   - make
+
+- name: decompress nginx.tar.gz
+  unarchive: src={{ nginx_file_version }} dest=/tmp 
+
+- name: create nginx group
+  group: name={{ nginx_group }}
+
+- name: create nginx user
+  user: name={{ nginx_user }} group={{ nginx_group }} shell=/sbin/nologin create_home=no
+
+- name: create nginx install directory
+  file: path={{ software_install_path }}/nginx state=directory owner=www group=www
+
+- name: build and install nginx
+  shell: "{{ item }}"
+  with_items:
+   - "{{ nginx_configure_command }}"
+   - make && make install 
+  args:
+    chdir: "/tmp/{{ nginx_version }}/"
+  tags: build
+
+- name: copy configuration file from nginx
+  template: src=nginx.conf.j2 dest={{ software_install_path }}/nginx/conf/nginx.conf owner=www group=www
+  notify: start nginx server
+

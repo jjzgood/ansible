@@ -1,0 +1,32 @@
+---
+- name: create redis cluster directory
+  file: path=/usr/local/redis/cluster_redis state=directory
+
+- name: create redis cluster directory
+  file: path=/usr/local/redis/cluster_redis/{{ item }} state=directory
+  with_sequence: start={{ num_start }} end={{ num_end }} stride=6
+  #with_sequence: start=7001 end=7025 stride=6
+  #with_sequence: start=7002 end=7026 stride=6
+  #with_sequence: start=7003 end=7027 stride=6
+  #with_sequence: start=7004 end=7028 stride=6
+  #with_sequence: start=7005 end=7029 stride=6
+
+- name: create redis cluster file
+  file: path=/usr/local/redis/cluster_redis/{{ redis_port }}/{{ item }} state=directory
+  with_items:
+   - data
+   - logs
+  tags: report
+
+- name: copy redis configuration file
+  template: src=redis.conf.j2 dest=/usr/local/redis/cluster_redis/{{ redis_port }}/redis.conf
+  tags: report
+
+- name: change redis file ower and group
+  file: path=/usr/local/redis owner=yanfa group=yanfa recurse=yes
+  tags: report
+
+- name: change ruby file ower and group
+  file: path=/usr/local/ruby owner=yanfa group=yanfa recurse=yes
+  tags: report
+

@@ -1,0 +1,54 @@
+---
+- name: install redis depandency packages
+  yum: name={{ item }} state=installed
+  with_items:
+   - zlib-devel
+
+- name: check and add group yanfa
+  group: name=yanfa state=present
+
+- name: check and add user yanfa 
+  user: name=yanfa state=present group=yanfa
+
+- name: decompress redis.tar.gz
+  unarchive: src=redis-3.2.11.tar.gz dest=/usr/local
+
+- name: change install directroy
+  shell: mv /usr/local/redis-3.2.11 /usr/local/redis
+
+- name: build and install redis
+  shell: make && make install
+  args:
+   chdir: "/usr/local/redis"
+  tags: build_redis
+
+- name: decompress ruby.tar.gz
+  unarchive: src=ruby-2.4.4.tar.gz dest=/tmp
+  
+- name: build and install ruby
+  shell: "{{ item }}"
+  with_items:
+   - "./configure --prefix=/usr/local/ruby"
+   - "make && make install"
+  args:
+   chdir: "/tmp/ruby-2.4.4/"
+  tags: build_ruby
+  notify: add ruby profile
+
+- name: copy gem to remoute
+  copy: src=redis-3.2.2.gem dest=/tmp/
+  tags: build_gem
+
+#- name: install redis gem plug-in
+#  shell: /usr/local/ruby/bin/gem install -l redis-3.2.2.gem
+#  tags: build_gem
+#  args:
+#   chdir: "/tmp"
+- name: install redis gem plug-in
+  gem: name=gem state=present executable=/usr/local/ruby/bin/gem gem_source=/tmp/redis-3.2.2.gem
+  tags: build_gem
+ 
+- name: loadup env variable
+  shell: source /etc/profile
+  tags: build_gem
+

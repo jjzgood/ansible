@@ -1,0 +1,43 @@
+---
+- name: copy jdk package to remoute server
+  copy: src=jdk-8u171-linux-x64.rpm dest=/tmp
+
+- name: install jdk package
+  yum: name=/tmp/jdk-8u171-linux-x64.rpm state=installed
+
+- name: change system limits
+  lineinfile: dest=/etc/security/limits.conf insertbefore='# End of' line={{ item }}
+  with_items:
+   - '* soft nofile 65536'
+   - '* hard nofile 65536'
+   - '* soft nproc 65536'
+   - '* hard nproc 65536'
+   - '* hard memlock unlimited'
+   - '* soft memlock unlimited'
+
+- name: kernel optimize
+  lineinfile: dest=/etc/sysctl.conf line={{ item }}
+  with_items:
+   - 'vm.max_map_count = 262144'
+  notify: reload sysctl file
+
+- name: create elasticsearch directory
+  file: path=/usr/local/elasticsearch state=directory
+
+- name: decompress elasticsearch.tgz
+  unarchive: src=elasticsearch-5.2.2.tar.gz dest=/usr/local/elasticsearch
+
+- name: move elasticsearch file 
+  shell: mv /usr/local/elasticsearch/elasticsearch-5.2.2/* /usr/local/elasticsearch/
+
+- name: copy elasticsearch configuration file
+  template: src=elasticsearch.yml.j2 dest=/usr/local/elasticsearch/config/elasticsearch.yml backup=yes
+
+- name: change jvm memory size
+  replace: path=/usr/local/elasticsearch/config/jvm.options regexp='^-Xms2g' replace='-Xms{{ xms }}g'
+
+- name: change maxinum jvm memory size
+  replace: path=/usr/local/elasticsearch/config/jvm.options regexp='^-Xmx2g' replace='-Xmx{{ xmx }}g'
+
+- name: change elasticsearch file ower and group
+  file: path=/usr/local/elasticsearch owner=yanfa group=yanfa recurse=yes

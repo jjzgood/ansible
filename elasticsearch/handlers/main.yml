@@ -1,0 +1,6 @@
+---
+- name: reload sysctl file
+  shell: "sysctl -p"
+
+- name: start elstic by yanfa
+  shell: /usr/local/elasticsearch/bin/elasticsearch -d

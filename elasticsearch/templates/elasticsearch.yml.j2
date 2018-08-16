@@ -1,0 +1,15 @@
+cluster.name: my-es
+node.name: {{ es_name }}
+node.master: {{ node_master }}
+node.data: {{ node_data }}
+path.data: /home/yanfa/data/es-data
+path.logs: /home/yanfa/data/es-logs
+bootstrap.memory_lock: true
+bootstrap.system_call_filter: false
+network.host: {{ network_host }}
+http.port: 9201
+transport.tcp.port: 9301
+discovery.zen.ping.unicast.hosts: {{ ping_hosts }}
+discovery.zen.minimum_master_nodes: 2
+#gateway.recover_after_nodes: 3
+

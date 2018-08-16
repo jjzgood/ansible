@@ -1,0 +1,5 @@
+es_name: es-master1
+network_host: localhost
+node_master: "true"
+node_data: "false"
+ping_hosts: '["192.168.7.7","192.168.7.8"]'

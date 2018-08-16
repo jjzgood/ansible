@@ -13,3 +13,10 @@ some ansible role
 * 修改nginx配置文件
 * 修改端口
 * 启动nginx
+
+## 3. redis
+* 安装redis
+* 安装ruby
+* 安装redis-gem
+* 多个节点配置及其启动：
+>for i  in {7006,7012,7018,7024};do ansible-playbook -t report -e redis_port=$i redis.yml;done

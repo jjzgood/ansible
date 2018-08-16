@@ -30,3 +30,6 @@
   file: path=/usr/local/ruby owner=yanfa group=yanfa recurse=yes
   tags: report
 
+- name: start redis
+  shell: /usr/local/redis/src/redis-server /usr/local/redis/cluster_redis/{{ redis_port }}/redis.conf
+  tags: report 

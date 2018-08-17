@@ -1,0 +1,9 @@
+- name: touch mongod.conf file
+  file:
+    path: /usr/local/mongodb/log/mongod.log
+    state: touch
+    owner: yanfa
+    group: yanfa 
+
+
+

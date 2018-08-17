@@ -1,0 +1,40 @@
+---
+- name: set mongodb system env 
+  shell: echo never >/sys/kernel/mm/transparent_hugepage/defrag && echo never >/sys/kernel/mm/transparent_hugepage/enabled
+
+- name: create mongodb directory
+  file:
+    path: /usr/local/mongodb
+    state: directory
+
+#- name: copy mongodb.tgz to remoute system
+#  copy: 
+#    src: mongodb-linux-x86_64-rhel70-3.4.5-rc0.tgz
+#    dest: /usr/local/mongodb 
+
+- name: decompress mongodb.tgz
+  unarchive:
+    src: mongodb-linux-x86_64-rhel70-3.4.5-rc0.tgz
+    dest: /usr/local/mongodb
+
+- name: move mongodb file
+  shell: mv /usr/local/mongodb/mongodb-linux-x86_64-rhel70-3.4.5-rc0/* /usr/local/mongodb/
+
+- name: create data log conf directory
+  shell: mkdir /usr/local/mongodb/{data,log,conf}  
+  notify: 
+    - touch mongod.conf file
+
+- name: copy mongodb configurateion file
+  template:
+    src: mongod.conf.j2
+    dest: /usr/local/mongodb/conf/mongod.conf
+    owner: yanfa
+    group: yanfa
+
+- name: change mongodb file ower and group
+  file: 
+    path: /usr/local/mongodb
+    owner: yanfa
+    group: yanfa
+    recurse: yes

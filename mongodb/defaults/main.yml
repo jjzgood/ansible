@@ -1,0 +1,4 @@
+log_path: /usr/local/mongodb/log/mongod.log
+db_path: /usr/local/mongodb/data
+pid_path: /usr/local/mongodb/mongod.pid
+mongod_port: 27017

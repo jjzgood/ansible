@@ -1,0 +1,16 @@
+systemLog:
+  destination: file
+  logAppend: true
+  path: {{ log_path }}
+
+storage:
+  dbPath: {{ db_path }}
+  journal:
+    enabled: true
+
+processManagement:
+  fork: true
+  pidFilePath: {{ pid_path }}
+
+net:
+  port: {{ mongod_port }}
